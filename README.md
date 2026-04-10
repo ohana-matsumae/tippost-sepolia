@@ -78,7 +78,7 @@ The repository now includes a React frontend in the frontend folder.
 
 ### Frontend environment
 
-Create frontend/.env from frontend/.env.example and set:
+Use the root `.env` file for frontend values as well. Set:
 
 - VITE_CONTRACT_ADDRESS: deployed TipPost address
 - VITE_CHAIN_ID: target chain ID (Sepolia is 11155111)
@@ -114,8 +114,40 @@ Set these Vercel environment variables:
 - VITE_CHAIN_ID
 - VITE_SEPOLIA_RPC_URL
 
+### Docker + Cloudflared deployment
+
+This repository includes:
+
+- [docker-compose.yml](docker-compose.yml): runs the frontend and cloudflared proxy
+- [frontend/Dockerfile](frontend/Dockerfile): builds the frontend and serves it with nginx
+- [frontend/nginx.conf](frontend/nginx.conf): SPA routing + health endpoint
+
+Before starting, ensure your variables are set in the root `.env` file. This compose setup uses
+token-based tunnels, so `CLOUDFLARED_TUNNEL_TOKEN` is required. See more information about
+tunneling with `cloudflared` [here](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/).
+
+For Docker builds, set these variables in the root `.env` file (used as compose build args):
+
+- VITE_CONTRACT_ADDRESS
+- VITE_CHAIN_ID
+- VITE_SEPOLIA_RPC_URL
+
+Run:
+
+```shell
+docker compose up --build -d
+```
+
+To stop:
+
+```shell
+docker compose down
+```
+
 ## Contract
 
 Deployed contract here: [https://sepolia.etherscan.io/address/0x9116fd59e673F1C10cE9030A31B96699Fff7ea85](https://sepolia.etherscan.io/address/0x9116fd59e673F1C10cE9030A31B96699Fff7ea85)
 
 Address on Sepolia: `0x9116fd59e673F1C10cE9030A31B96699Fff7ea85`
+
+Sample deployment URL: N/A

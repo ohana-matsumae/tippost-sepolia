@@ -1,0 +1,21 @@
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        VITE_CONTRACT_ADDRESS: ${VITE_CONTRACT_ADDRESS:-0x0000000000000000000000000000000000000000}
+        VITE_CHAIN_ID: ${VITE_CHAIN_ID:-11155111}
+        VITE_SEPOLIA_RPC_URL: ${VITE_SEPOLIA_RPC_URL:-https://sepolia.infura.io/v3/your-key}
+    container_name: tippost-frontend
+    restart: unless-stopped
+    expose:
+      - "8080"
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: tippost-cloudflared
+    depends_on:
+      - frontend
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARED_TUNNEL_TOKEN}

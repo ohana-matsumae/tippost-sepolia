@@ -1,0 +1,40 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_28-32cdecaf0a981dd7f7452800241cc8a7db7a5a23",
+  "solcVersion": "0.8.28",
+  "solcLongVersion": "0.8.28+commit.7893614a",
+  "compilerType": "solc",
+  "userSourceNameMap": {
+    "contracts/TipPost.sol": "project/contracts/TipPost.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode",
+            "evm.deployedBytecode",
+            "evm.methodIdentifiers",
+            "metadata"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/TipPost.sol": {
+        "content": "// SPDX-License-Identifier: UNLICENSED\npragma solidity ^0.8.28;\n\ncontract TipPost {\n  struct Post {\n    uint256 id;\n    address creator;\n    string imageUrl;\n    string caption;\n    uint256 likes;\n    uint256 totalEarned;\n    uint256 timestamp;\n  }\n\n  uint256 public postCount;\n  uint256 public likeCost = 0.0001 ether;\n\n  mapping(uint256 => Post) public posts;\n  mapping(uint256 => mapping(address => bool)) public hasLiked;\n  mapping(address => uint256) public totalEarnedByUser;\n\n  event PostCreated(\n    uint256 indexed id,\n    address indexed creator,\n    string imageUrl,\n    string caption\n  );\n\n  event PostLiked(\n    uint256 indexed postId,\n    address indexed liker,\n    address indexed creator,\n    uint256 amount,\n    uint256 likes,\n    uint256 totalEarned\n  );\n\n  function createPost(string calldata imageUrl, string calldata caption) external {\n    require(bytes(imageUrl).length > 0, \"createPost: image URL required\");\n    require(bytes(caption).length > 0, \"createPost: caption required\");\n\n    postCount++;\n\n    Post memory post = Post({\n      id: postCount,\n      creator: msg.sender,\n      imageUrl: imageUrl,\n      caption: caption,\n      likes: 0,\n      totalEarned: 0,\n      timestamp: block.timestamp\n    });\n\n    posts[postCount] = post;\n\n    emit PostCreated(post.id, post.creator, post.imageUrl, post.caption);\n  }\n\n  function likePost(uint256 postId) external payable {\n    require(postId > 0 && postId <= postCount, \"likePost: post does not exist\");\n    require(msg.value >= likeCost, \"likePost: insufficient ETH sent\");\n\n    Post storage post = posts[postId];\n\n    require(msg.sender != post.creator, \"likePost: cannot like your own post\");\n    require(!hasLiked[postId][msg.sender], \"likePost: already liked\");\n\n    hasLiked[postId][msg.sender] = true;\n    post.likes++;\n    post.totalEarned += msg.value;\n    totalEarnedByUser[post.creator] += msg.value;\n\n    (bool sent, ) = payable(post.creator).call{ value: msg.value }(\"\");\n    require(sent, \"likePost: tip transfer failed\");\n\n    emit PostLiked(postId, msg.sender, post.creator, msg.value, post.likes, post.totalEarned);\n  }\n\n  function getAllPosts() external view returns (Post[] memory) {\n    Post[] memory allPosts = new Post[](postCount);\n\n    for (uint256 i = 0; i < postCount; i++) {\n      allPosts[i] = posts[i + 1];\n    }\n\n    return allPosts;\n  }\n\n  function checkLiked(uint256 postId, address user) external view returns (bool) {\n    return hasLiked[postId][user];\n  }\n}"
+      }
+    }
+  }
+}

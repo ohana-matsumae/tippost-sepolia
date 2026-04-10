@@ -113,3 +113,9 @@ Set these Vercel environment variables:
 - VITE_CONTRACT_ADDRESS
 - VITE_CHAIN_ID
 - VITE_SEPOLIA_RPC_URL
+
+## Contract
+
+Deployed contract here: [https://sepolia.etherscan.io/address/0x9116fd59e673F1C10cE9030A31B96699Fff7ea85](https://sepolia.etherscan.io/address/0x9116fd59e673F1C10cE9030A31B96699Fff7ea85)
+
+Address on Sepolia: `0x9116fd59e673F1C10cE9030A31B96699Fff7ea85`
